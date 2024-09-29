@@ -35,8 +35,16 @@ do
 		wait
 		FORK="$MAXFORK"
 	fi
+done | sed 's/^.*[0-9] \(.*\) (.*$/\1/;s/\\/\\\\\\\\/g;s/ /\\\\ /g' | while read n
+do
+	( rpcclient -U "${U1}%${P1}" -c "lookupnames $n" "$IP" ) &
+	FORK="$((FORK-1))"
+	if [ "$FORK" -le 0 ]; then
+		wait
+		FORK="$MAXFORK"
+	fi
 done
 
 wait -n
+sleep "$MAXFORK"
 exit 0
-                 
